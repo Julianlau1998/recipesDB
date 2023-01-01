@@ -27,6 +27,19 @@ func startup() {
 	}
 }
 
+func CORSMiddlewareWrapper(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		dynamicCORSConfig := middleware.CORSConfig{
+			AllowOrigins: []string{"https://recipe-search.com", "https://rezepte-finder.netlify.app"},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+			AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete, http.MethodOptions},
+		}
+		CORSMiddleware := middleware.CORSWithConfig(dynamicCORSConfig)
+		CORSHandler := CORSMiddleware(next)
+		return CORSHandler(ctx)
+	}
+}
+
 func main() {
 	startup()
 	CategoryRepository := categories.NewRepository(dbClient)
@@ -46,6 +59,7 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.Use(middleware.Logger())
+	e.Use(CORSMiddlewareWrapper)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
