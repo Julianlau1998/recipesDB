@@ -17,7 +17,7 @@ func NewRepository(dbClient *sql.DB) Repository {
 
 func (r *Repository) GetIngredientsByRecipe(recipeID string) ([]models.Ingredient, error) {
 	var ingredients []models.Ingredient
-	query := `SELECT ingredients.* FROM recipe_ingredients JOIN ingredients ON ingredients.uuid = recipe_ingredients.ingredient_ID WHERE recipe_ingredients.recipe_ID = $1`
+	query := `SELECT ingredients.uuid, ingredients.ingredient FROM recipe_ingredients JOIN ingredients ON ingredients.uuid = recipe_ingredients.ingredient_ID WHERE recipe_ingredients.recipe_ID = $1`
 	ingredients, err := r.fetch(query, recipeID)
 	if err != nil {
 		return ingredients, err
