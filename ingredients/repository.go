@@ -17,7 +17,7 @@ func NewRepository(dbClient *sql.DB) Repository {
 
 func (r *Repository) GetIngredientsByRecipe(recipeID string) ([]models.Ingredient, error) {
 	var ingredients []models.Ingredient
-	query := `SELECT ingredients.uuid, ingredients.ingredient FROM recipe_ingredients JOIN ingredients ON ingredients.uuid = recipe_ingredients.ingredient_ID WHERE recipe_ingredients.recipe_ID = $1`
+	query := `SELECT ingredients.uuid, ingredients.ingredient, ingredients.measurement FROM recipe_ingredients JOIN ingredients ON ingredients.uuid = recipe_ingredients.ingredient_ID WHERE recipe_ingredients.recipe_ID = $1`
 	ingredients, err := r.fetch(query, recipeID)
 	if err != nil {
 		return ingredients, err
@@ -28,8 +28,8 @@ func (r *Repository) GetIngredientsByRecipe(recipeID string) ([]models.Ingredien
 func (r *Repository) PostIngredients(ingredients []models.Ingredient, recipeIngredients []models.RecipeIngredients) error {
 	return utility.Transact(r.dbClient, func(tx *sql.Tx) error {
 		for _, ingredient := range ingredients {
-			ingredientsQuery := `INSERT INTO ingredients (uuid, ingredient) VALUES ($1, $2)`
-			_, err := r.dbClient.Exec(ingredientsQuery, ingredient.IngredientId, ingredient.Ingredient)
+			ingredientsQuery := `INSERT INTO ingredients (uuid, ingredient, measurement) VALUES ($1, $2, $3)`
+			_, err := r.dbClient.Exec(ingredientsQuery, ingredient.IngredientId, ingredient.Ingredient, ingredient.Measurement)
 			if err != nil {
 				return err
 			}
@@ -83,7 +83,7 @@ func (r *Repository) fetch(query string, recipeID string) ([]models.Ingredient, 
 	}()
 	for rows.Next() {
 		ingredientsDB := models.IngredientsDB{}
-		err := rows.Scan(&ingredientsDB.IngredientId, &ingredientsDB.Ingredient)
+		err := rows.Scan(&ingredientsDB.IngredientId, &ingredientsDB.Ingredient, &ingredientsDB.Measurement)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				continue

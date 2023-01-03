@@ -52,6 +52,7 @@ func (s *Service) PostIngredients(recipe *models.Recipe) error {
 		}
 		ingredientsModel.Ingredient = ingredient.Ingredient
 		ingredientsModel.IngredientId = id.String()
+		ingredientsModel.Measurement = ingredient.Measurement
 		ingredientsModelArray = append(ingredientsModelArray, ingredientsModel)
 
 		recipeIngredients.Ingredients_ID = id.String()
