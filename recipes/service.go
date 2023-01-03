@@ -37,13 +37,13 @@ func (s *Service) getRecipes(offset int64) ([]models.Recipe, error) {
 		return nil, err
 	}
 
-	for index, recipe := range recipes {
+	/*for index, recipe := range recipes {
 		allIngredients, err := s.ingredientsService.GetIngredientsByRecipe(recipe.Id)
 		if err != nil {
 			return nil, err
 		}
 		recipes[index].Ingredients = allIngredients
-	}
+	}*/
 
 	return recipes, err
 }
@@ -54,13 +54,13 @@ func (s *Service) getByCategory(category string, offset int64) ([]models.Recipe,
 		return nil, err
 	}
 
-	for index, recipe := range recipes {
+	/*for index, recipe := range recipes {
 		allIngredients, err := s.ingredientsService.GetIngredientsByRecipe(recipe.Id)
 		if err != nil {
 			return nil, err
 		}
 		recipes[index].Ingredients = allIngredients
-	}
+	}*/
 
 	return recipes, err
 }
