@@ -14,24 +14,24 @@ func NewRepository(dbClient *sql.DB) Repository {
 	return Repository{dbClient: dbClient}
 }
 
-func (r *Repository) getRecipes(offset int64) ([]models.Recipe, error) {
+func (r *Repository) getRecipes(offset int64, randomisation int64) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := `SELECT uuid, title, description, duration, category_ID, image, country, is_vegetarian, is_vegan, createdDate FROM recipes LIMIT 20 OFFSET $1`
-	recipes, err := r.fetch(query, "", offset)
+	query := `SELECT uuid, title, description, duration, category_ID, image, country, is_vegetarian, is_vegan, createdDate FROM recipes ORDER BY row_number() over(order by uuid) % $1, row_number() over(order by uuid) LIMIT 20 OFFSET $2`
+	recipes, err := r.fetch(query, "", int(randomisation), offset)
 	return recipes, err
 }
 
-func (r *Repository) getByCategory(category string, offset int64) ([]models.Recipe, error) {
+func (r *Repository) getByCategory(category string, offset int64, randomisation int64) ([]models.Recipe, error) {
 	var recipes []models.Recipe
-	query := `SELECT uuid, title, description, duration, category_ID, image, country, is_vegetarian, is_vegan, createdDate FROM recipes WHERE category_ID = $1 LIMIT 20 OFFSET $2`
-	recipes, err := r.fetch(query, category, offset)
+	query := `SELECT uuid, title, description, row_number() over(order by uuid), category_ID, image, country, is_vegetarian, is_vegan, createdDate FROM recipes WHERE category_ID = $1 ORDER BY row_number() over(order by uuid) % $2, row_number() over(order by uuid) LIMIT 20 OFFSET $3`
+	recipes, err := r.fetch(query, category, int(randomisation), offset)
 	return recipes, err
 }
 
 func (r *Repository) GetRandom() ([]models.Recipe, error) {
 	var recipes []models.Recipe
 	query := `SELECT uuid, title, description, duration, category_ID, image, country, is_vegetarian, is_vegan, createdDate FROM recipes order by random() limit $1`
-	recipes, err := r.fetch(query, "", 1)
+	recipes, err := r.fetch(query, "", 0, 1)
 	return recipes, err
 }
 
@@ -72,11 +72,13 @@ func (r *Repository) deleteRecipe(recipe models.Recipe) (models.Recipe, error) {
 	return recipe, nil
 }
 
-func (r *Repository) fetch(query string, category string, offset int64) ([]models.Recipe, error) {
+func (r *Repository) fetch(query string, category string, randInt int, offset int64) ([]models.Recipe, error) {
 	var rows *sql.Rows
 	var err error
 	if len(category) > 0 {
-		rows, err = r.dbClient.Query(query, category, offset)
+		rows, err = r.dbClient.Query(query, category, randInt, offset)
+	} else if randInt > 0 {
+		rows, err = r.dbClient.Query(query, randInt, offset)
 	} else {
 		rows, err = r.dbClient.Query(query, offset)
 	}

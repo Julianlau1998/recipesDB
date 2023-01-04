@@ -31,8 +31,8 @@ func NewService(
 	}
 }
 
-func (s *Service) getRecipes(offset int64) ([]models.Recipe, error) {
-	recipes, err := s.recipeRepo.getRecipes(offset)
+func (s *Service) getRecipes(offset int64, randomisation int64) ([]models.Recipe, error) {
+	recipes, err := s.recipeRepo.getRecipes(offset, randomisation)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func (s *Service) getRecipes(offset int64) ([]models.Recipe, error) {
 	return recipes, err
 }
 
-func (s *Service) getByCategory(category string, offset int64) ([]models.Recipe, error) {
-	recipes, err := s.recipeRepo.getByCategory(category, offset)
+func (s *Service) getByCategory(category string, offset int64, randomisation int64) ([]models.Recipe, error) {
+	recipes, err := s.recipeRepo.getByCategory(category, offset, randomisation)
 	if err != nil {
 		return nil, err
 	}

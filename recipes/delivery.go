@@ -19,11 +19,12 @@ func NewDelivery(recipeService Service) Delivery {
 
 func (d *Delivery) GetAll(c echo.Context) error {
 	offset, err := strconv.ParseInt(c.QueryParam("offset"), 0, 64)
+	randomisation, err := strconv.ParseInt(c.QueryParam("randomisation"), 0, 64)
 	if err != nil {
-		log.Warnf("Could not parse offset value")
+		log.Warnf("Could not parse offset/randomisation value")
 		offset = 0
 	}
-	recipes, err := d.recipeService.getRecipes(offset)
+	recipes, err := d.recipeService.getRecipes(offset, randomisation)
 	if err != nil {
 		fmt.Println(err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -34,11 +35,12 @@ func (d *Delivery) GetAll(c echo.Context) error {
 func (d *Delivery) GetByCategory(c echo.Context) error {
 	category := c.Param("category")
 	offset, err := strconv.ParseInt(c.QueryParam("offset"), 0, 64)
+	randomisation, err := strconv.ParseInt(c.QueryParam("randomisation"), 0, 64)
 	if err != nil {
-		log.Warnf("Could not parse offset value")
+		log.Warnf("Could not parse offset/randomisation value")
 		offset = 0
 	}
-	recipes, err := d.recipeService.getByCategory(category, offset)
+	recipes, err := d.recipeService.getByCategory(category, offset, randomisation)
 	if err != nil {
 		fmt.Println(err)
 		return c.String(http.StatusBadRequest, err.Error())
