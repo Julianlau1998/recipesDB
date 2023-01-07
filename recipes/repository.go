@@ -56,8 +56,7 @@ AND
 (recipes.title ILIKE '%' || $2 || '%'
 OR recipes.description ILIKE '%' || $2 || '%'
 OR recipes.country ILIKE '%' || $2 || '%'
-OR categories.title ILIKE '%' || $2 || '%'
-ORDER BY row_number() over(order by recipes.uuid) % $3, row_number() over(order by recipes.uuid) 
+OR categories.title ILIKE '%' || $2 || '%' ORDER BY row_number() over(order by recipes.uuid) % $3, row_number() over(order by recipes.uuid) 
 LIMIT 20 OFFSET $4`
 
 	recipes, err := r.fetch(query, category, fulltext, int(randomisation), offset)
